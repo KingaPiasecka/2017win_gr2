@@ -14,18 +14,34 @@
 #After you finish, be sure to UPLOAD this (add, commit, push) to the remote repository.
 #Good Luck
 
-import sys
-import time
-import random
+import random, time, math
 
-a =0;
-sigma = 0.1;
+mean_and_standard_dev = (10, 10/3);
+
+def turbulations():
+	new_orientation = random.gauss(mean_and_standard_dev[0], mean_and_standard_dev[1])
+	return new_orientation;
+
+def tilt_correction(desired_orientation, curent_orientation):
+	if desired_orientation < curent_orientation:
+		curent_orientation -= math.fabs(desired_orientation - curent_orientation)
+	else:
+		curent_orientation += math.fabs(desired_orientation - curent_orientation)
+	
+	return curent_orientation
+	
 
 try:
-    while True:
-        time.sleep(1)
-        a = random.gauss(a, sigma)
-        
-        print "current orientation ", a
+	desired_orientation = random.gauss(mean_and_standard_dev[0], mean_and_standard_dev[1])
+	print "plane orientation: ",   desired_orientation
+	while True:
+		curent_orientation = turbulations()
+		print 'turbulations!\ncurent_orientation:: {orientation}'.format(orientation=turbulations())
+		time.sleep(0.5)
+		print "tilt correction applying"
+		time.sleep(1)
+		curent_orientation = tilt_correction(desired_orientation, curent_orientation)
+		print 'curent_orientation: {orientation}'.format(orientation=curent_orientation)
+		time.sleep(3)
 except KeyboardInterrupt:
-    raise
+	exit()
