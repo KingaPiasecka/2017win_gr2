@@ -116,7 +116,7 @@ class Simulator:
 	def invoke_turbulations(self):
 		print """
 		turbulations!"""
-		self.simulate_speed_changes()
+		self.simulate_speed_changes(None)
 		gust_values = self.gust.rand_vertical_gust_for_turbulations()
 		angle_change_value = math.atan(gust_values[1] / self.aircraft.speed) * gust_values[0][1]
 		self.aircraft.orientation = self.aircraft.orientation + angle_change_value
@@ -126,15 +126,19 @@ class Simulator:
 		appling the tilt correction..."""
 		self.aircraft.tilt_correction(self.aircraft_desired_orientation)
 		
-	def simulate_speed_changes(self):
-		speed_change = random.gauss(self.mean_and_standard_dev[0], self.mean_and_standard_dev[1])
-		self.aircraft.speed = self.aircraft.speed + speed_change
+	def simulate_speed_changes(self, wind_speed):
 		
+		if wind_speed is None:
+			speed_change = random.gauss(self.mean_and_standard_dev[0], self.mean_and_standard_dev[1])
+			self.aircraft.speed = self.aircraft.speed + speed_change
+		else:
+			self.aircraft.speed = math.sqrt(math.pow(self.aircraft.speed, 2) - math.pow(wind_speed[1], 2))
 	def simulate_side_wind(self):
 		gust_values = self.gust.rand_side_gust()
 		print """
 		{0} side wind: {1:.2f}!""".format(gust_values[0][0], gust_values[1])
-		angle_change_value = math.atan(gust_values[1] / self.aircraft.speed) * gust_values[0][1]
+		self.simulate_speed_changes(gust_values);
+		angle_change_value = math.asin(gust_values[1] / self.aircraft.speed) * gust_values[0][1]
 		self.aircraft.direction = self.aircraft.direction + angle_change_value
 		print bcolors.WARNING + """
 		FLT DIR: {0:10.2f}""".format(self.aircraft.direction) + bcolors.ENDC
